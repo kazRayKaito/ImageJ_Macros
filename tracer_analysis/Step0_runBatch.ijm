@@ -2,7 +2,7 @@
 print("\\Clear");
 
 //Defining path for Macro and get macro list
-flMacro = "C:/Users/lizij/Documents/imageJ_Macros/ImageJ_Macros/pore_scale_analysis/";
+flMacro = "R:/1_ReserachRelated/ruBatch_3D_tracer/batch/";
 macroList = getFileList(flMacro);
 
 //Inception mode
@@ -15,7 +15,7 @@ if(inceptionMode == 0){
 	
 	for(flRawIndex = 0; flRawIndex< flRawList.length; flRawIndex++){
 		flRaw = flRawList[flRawIndex].substring(0, flRawList[flRawIndex].length - 1) + "\\";
-		for(i = 1; i <= 1; i++){
+		for(i = 4; i <= 4; i++){
 			print("running "+macroList[i] + "at Folder:" + flRaw);
 			runMacro(flMacro+macroList[i],flRoot + flRaw);
 		}

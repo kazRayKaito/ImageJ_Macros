@@ -36,7 +36,7 @@ for(folderIndex = 0; folderIndex< folderList.length; folderIndex++){
 	rename(""+subFolder);
 	
 	//ImageSettings
-	targetWidthHeight = 720;
+	targetWidthHeight = 400;
 	
 	//Scan Settings
 	startCutoff = 150;
