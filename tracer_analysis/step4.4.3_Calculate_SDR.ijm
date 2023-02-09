@@ -31,7 +31,10 @@ for(inImageIndex = 0; inImageIndex< inImageList.length; inImageIndex++){
 	wh = getWidth()*getHeight();
 
 	//Get Topview Average
-	//run("Calibrate...", "function=[Straight Line] unit=% text1=[0\015 5323.937986\015 10541.70416\015 15874.17306\015 20345.53182\015 24379.83788] text2=[0\015 2\015 4\015 6\015 8\015 10\015 \015 ]");
+	
+	run("Calibrate...", "function=[Straight Line] unit=% text1=[0\015 24379.83788] text2=[0\015 10  ]");
+	run("32-bit");
+	
 	run("Z Project...", "projection=[Average Intensity]");
 	run("Duplicate...", "title=dxdy0");
 	run("Duplicate...", "title=dx1");
@@ -53,7 +56,6 @@ for(inImageIndex = 0; inImageIndex< inImageList.length; inImageIndex++){
 	run("Rotate 90 Degrees Right");
 	run("Reslice [/]...", "output=1.000 start=Top avoid");
 	run("Z Project...", "projection=[Sum Slices]");
-	run("Divide...", "value=5943765");
 	
 	//SAVE DATA
 	setResult(""+imageTitle, 0, getPixel(0, 0)/wh);
