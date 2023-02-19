@@ -1,3 +1,14 @@
+//---------------Set Variables----------------------
+
+//ImageSettings
+targetWidthHeight = 720;
+
+//Scan Settings
+startCutoff = 150;
+endCutoff = 250;
+
+//---------------Set Variables----------------------
+
 //----------For batch, get rootFoler----------------
 argument = getArgument();
 if(argument!=""){
@@ -11,19 +22,13 @@ if(argument!=""){
 
 //----------CheckFolderStructure make imageJ folder----------------
 folderList = getFileList(fli);
-flo = fli+"/imageJ/step1_horizontalAlign/";
+flo = fli+"/imageJ/step1.0_horizontalAlign/";
 
 File.makeDirectory(fli+"/imageJ/");
 File.makeDirectory(flo);
 
 for(folderIndex = 0; folderIndex< folderList.length; folderIndex++){
 	subFolder = folderList[folderIndex].substring(0, folderList[folderIndex].length - 1);
-	
-	//if(subFolder != "initial"){
-	//	print(subFolder+"!=initial");
-	//	continue;
-	//}
-	
 	
 	if(subFolder == "imageJ"){
 		continue;
@@ -34,13 +39,6 @@ for(folderIndex = 0; folderIndex< folderList.length; folderIndex++){
 	//Open image file
 	run("Image Sequence...", "dir="+fli+"/"+subFolder+"/XY/ sort");
 	rename(""+subFolder);
-	
-	//ImageSettings
-	targetWidthHeight = 720;
-	
-	//Scan Settings
-	startCutoff = 150;
-	endCutoff = 250;
 	
 	title = getTitle;
 	width = getWidth;
@@ -55,12 +53,18 @@ for(folderIndex = 0; folderIndex< folderList.length; folderIndex++){
 	setOption("BlackBackground", true);
 	run("Convert to Mask", "method=Otsu background=Dark black");
 	
+	//Remove Disconnected Particles
+	run("Keep Largest Region");
+	close(binaryTitle);
+	rename(binaryTitle);
+	
 	//Get Translation infomation
 	print("Obtaining BestFit circle for layers ["+startCutoff+"~"+depth-endCutoff+"]...");
 	xList = newArray(depth-startCutoff-endCutoff);
 	yList = newArray(depth-startCutoff-endCutoff);
 	zList = newArray(depth-startCutoff-endCutoff);
 	rList = newArray(depth-startCutoff-endCutoff);
+	
 	for(z=startCutoff;z<depth-endCutoff;z++){ 
 		setSlice(z);
 		
@@ -209,10 +213,11 @@ for(folderIndex = 0; folderIndex< folderList.length; folderIndex++){
 	xStart = Fit.p(0);
 	xSlope = Fit.p(1);
 	Fit.doFit("Straight Line",zList,yList);
+	//Fit.plot();
 	yStart = Fit.p(0);
 	ySlope = Fit.p(1);
 	
-	//Translate x and y
+	//Translate x/y and crop
 	print("Translating Original Image....");
 	selectWindow(title);
 	for(sliceIndex = 1;sliceIndex<=depth;sliceIndex++){
@@ -221,19 +226,51 @@ for(folderIndex = 0; folderIndex< folderList.length; folderIndex++){
 		yOffset = yTarget-yStart-ySlope*(sliceIndex-1);
 		run("Translate...", "x="+xOffset+" y="+yOffset+" interpolation=Bilinear slice");
 	}
-	
 	makeOval(0, 0, targetWidthHeight, targetWidthHeight);
 	run("Crop");
+	rename("TransCropped");
+	
+	//For xSlope, lift horizontally
+	makeRectangle(0, 0, targetWidthHeight, targetWidthHeight);
+	run("Reslice [/]...", "output=1.000 start=Left flip rotate avoid");
+	rename("ResliceX");
+	run("Flip Horizontally", "stack");
+	depth = nSlices;
+	for(sliceIndex = 1;sliceIndex<=depth;sliceIndex++){
+		setSlice(sliceIndex);
+		xOffset = (sliceIndex - targetWidthHeight/2) * xSlope;
+		yOffset = 0;
+		run("Translate...", "x="+xOffset+" y="+yOffset+" interpolation=Bilinear slice");
+	}
+	//For xSlope, reslice.. again
+	run("Reslice [/]...", "output=1.000 start=Left flip rotate avoid");
+	rename("ResliceBack");
+	run("Flip Horizontally", "stack");
+	
+	//For ySlope, lift horizontally
+	makeRectangle(0, 0, targetWidthHeight, targetWidthHeight);
+	run("Reslice [/]...", "output=1.000 start=Top avoid");
+	rename("ResliceY");
+	depth = nSlices;
+	for(sliceIndex = 1;sliceIndex<=depth;sliceIndex++){
+		setSlice(sliceIndex);
+		xOffset = 0;
+		yOffset = (sliceIndex - targetWidthHeight/2) * ySlope;
+		run("Translate...", "x="+xOffset+" y="+yOffset+" interpolation=Bilinear slice");
+	}
+	//For ySlope, reslice.. again
+	run("Reslice [/]...", "output=1.000 start=Top avoid");
 	
 	saveAs("Tiff", flo+subFolder+".tif");
-	print("image saved at " + flo+subFolder+".tif");
+	print("image saved at " + flo+subFolder+".tif");selectWindow("OtsuBinaryTemp");
 	
+	//Close windows party
+	close();
+	close("ResliceY");
+	close("ResliceX");
+	close("ResliceBack");
+	close("TransCropped");
 	close("" + binaryTitle);
-	print("binary closed");
-	
 	close(subFolder+".tif");
-	print(subFolder+".tif closed");
-	
 	close("y = a+bx");
-	print("graph closed");
 }

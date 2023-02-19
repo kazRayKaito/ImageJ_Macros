@@ -1,6 +1,10 @@
-//----------For batch, get rootFoler----------------
+//---------------Set Variables----------------------
+
 cropWindow = newArray(296, 296, 400, 400);//[x, y, width, height]
 gb_radius = 2.0;
+
+
+//---------------Set Variables----------------------
 
 //----------For batch, get rootFoler----------------
 argument = getArgument();
@@ -14,7 +18,7 @@ if(argument!=""){
 }
 
 //----------CheckFolderStructure make imageJ folder----------------
-fli = flRaw+"/imageJ/step1_horizontalAlign/";
+fli = flRaw+"/imageJ/step1.1_VerticalAlign/";
 flo = flRaw+"/imageJ/step2_filterAndSubtract/";
 inImageList = getFileList(fli);
 

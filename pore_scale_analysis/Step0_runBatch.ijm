@@ -1,31 +1,37 @@
-//Initialize log
-print("\\Clear");
+//---------------Set Variables----------------------
+
+//Macro Start - End
+forceStartMacro = 0;
+forceEndMacro = 2;
+
+//Ask before each step
+askBeforeEachStep = true;
 
 //Defining path for Macro and get macro list
 flMacro = "C:/Users/lizij/Documents/imageJ_Macros/ImageJ_Macros/pore_scale_analysis/";
-macroList = getFileList(flMacro);
+flMacro = "C:/Users/Kazuk/Documents/2_Projects/VSCode/ImageJ_Macros/pore_scale_analysis/";
 
-//Inception mode
-inceptionMode = 0;
+//---------------Set Variables----------------------
 
-if(inceptionMode == 0){
-	//Get root folder of the raw folders
-	flRoot = getDirectory("Choose the very root directory.");
-	flRawList = getFileList(flRoot);
-	
-	for(flRawIndex = 0; flRawIndex< flRawList.length; flRawIndex++){
-		flRaw = flRawList[flRawIndex].substring(0, flRawList[flRawIndex].length - 1) + "\\";
-		for(i = 1; i <= 1; i++){
-			print("running "+macroList[i] + "at Folder:" + flRaw);
-			runMacro(flMacro+macroList[i],flRoot + flRaw);
-		}
+//Initialize log, macroList and macroStart,End
+print("\\Clear");
+macroList = getFileList(flMacro);
+startMacroIndex  = 1;
+endMacroIndex = macroList.length;
+
+//Override Start and End Macro
+if(forceStartMacro != 0) startMacroIndex = forceStartMacro;
+if(forceEndMacro   != 0) endMacroIndex   = forceEndMacro + 1;
+
+
+//Get Image Directory
+flRaw = getDirectory("Choose a Directory for a folder which contains folders with [initial, 0, 1,2,...]");
+
+//Run Each Macro
+for(i = startMacroIndex; i < endMacroIndex; i++){
+	if(askBeforeEachStep){
+		waitForUser("Is it ok to run "+macroList[i]+"?");
 	}
-}else{
-	//Get Image Directory
-	flRaw = getDirectory("Choose a Directory for a folder which contains folder [initial, 0, 1,2,...]");
-	for(i=1;i<macroList.length;i++){
-		waitForUser("Is it ok to run step"+i+"?");
-		print("running "+macroList[i]);
-		runMacro(flMacro+macroList[i],flRaw);
-	}
-}
+	print("running "+macroList[i]);
+	runMacro(flMacro+macroList[i],flRaw);
+}
