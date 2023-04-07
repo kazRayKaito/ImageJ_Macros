@@ -18,9 +18,11 @@ if(argument!=""){
 //----------CheckFolderStructure make imageJ folder----------------
 fli = flRaw+"/imageJ/step1.0_horizontalAlign/";
 flo = flRaw+"/imageJ/step1.1_VerticalAlign/";
+floPlot = flRaw+"/imageJ/step1.1_VerticalAlign_Plots/";
 inImageList = getFileList(fli);
 
 File.makeDirectory(flo);
+File.makeDirectory(floPlot);
 
 //------------Open initial------------
 open(fli + inImageList[0]);
@@ -32,17 +34,18 @@ width = getWidth;
 height = getHeight;
 depth = nSlices;
 
-xLength = Math.floor(width/5);
-xStart = Math.floor((width - xLength)/2);
-yStart = Math.floor(height/2);
-zLength = 400;
+yLength = Math.floor(width/5);
+xStart = Math.floor(height/2);
+yStart = Math.floor((width - yLength)/2);
+
+zLength = 600;
 zStart = Math.floor((depth - zLength)/2);
 zEnd = zStart + zLength;
 
 zCenter = Math.floor(depth/2);
 
 //---------Get Slice----------
-makeRectangle(xStart, yStart, 1, xLength);
+makeRectangle(xStart, yStart, 1, yLength);
 run("Duplicate...", "title=temp duplicate range="+zStart+"-"+zEnd);
 run("Reslice [/]...", "output=1.000 start=Left avoid");
 rename("InitialSlice");
@@ -56,12 +59,12 @@ run("Duplicate...", "title=hCenter");
 close("initial");
 
 //------------Open Each Image and align------------
-for(imageIndex = 1; imageIndex < inImageList.length; imageIndex ++){
+for(imageIndex = 1; imageIndex < inImageList.length; imageIndex ++){	
 	open(fli + inImageList[imageIndex]);
 	imageTitle = getTitle();
 	
 	//---------Get Slice----------
-	makeRectangle(xStart, yStart, 1, xLength);
+	makeRectangle(xStart, yStart, 1, yLength);
 	run("Duplicate...", "title=temp duplicate range="+zStart+"-"+zEnd);
 	run("Reslice [/]...", "output=1.000 start=Left avoid");
 	rename("imageSlice");
@@ -69,22 +72,23 @@ for(imageIndex = 1; imageIndex < inImageList.length; imageIndex ++){
 	selectWindow("imageSlice");
 	run("Select All");
 	run("Copy");
-	for(i=2;i<=100;i++){
+	for(i=2;i<=1000;i++){
 		run("Add Slice");
 		run("Paste");
 	}
-	for(i=1;i<=100;i++){
+	for(i=1;i<=1000;i++){
 		setSlice(i);
-		run("Translate...", "x=0 y="+(i-50)/5+" interpolation=Bilinear slice");
+		run("Translate...", "x=0 y="+(i-500)/5+" interpolation=Bilinear slice");
 	}
 	
 	//Calculate Difference and Crop outside
 	imageCalculator("Difference create stack","imageSlice", "InitialSlice");
 	rename("difference");
-	makeRectangle(2, 20, xLength - 4, zLength - 40);
+	makeRectangle(2, 100, yLength - 4, zLength - 200);
 	
 	//Plot the Error and get Minimum y
 	run("Plot Z-axis Profile");
+	saveAs("Tiff", floPlot+imageTitle+"_plot_vertical.tif");
 	rename("plot");
 	Plot.getValues(xPoints,yPoints);
 	yMin = yPoints[0];
@@ -101,7 +105,7 @@ for(imageIndex = 1; imageIndex < inImageList.length; imageIndex ++){
 	run("Select All");
 	run("Reslice [/]...", "output=1.000 start=Right avoid");
 	rename("reslice a");
-	run("Translate...", "x=0 y="+(yMinIndex-50)/5+" interpolation=Bilinear stack");
+	run("Translate...", "x=0 y="+(yMinIndex-500)/5+" interpolation=Bilinear stack");
 	run("Reslice [/]...", "output=1.000 start=Top flip rotate avoid");
 	
 	//Close things for now
@@ -118,13 +122,13 @@ for(imageIndex = 1; imageIndex < inImageList.length; imageIndex ++){
 	run("Duplicate...", "title=imagehCenter");
 	run("Select All");
 	run("Copy");
-	for(i=2;i<=200;i++){
+	for(i=2;i<=600;i++){
 		run("Add Slice");
 		run("Paste");
 	}
-	for(i=1;i<=200;i++){
+	for(i=1;i<=600;i++){
 		setSlice(i);
-		run("Rotate... ", "angle="+(i-100)/20+" grid=1 interpolation=Bilinear slice");
+		run("Rotate... ", "angle="+(i-200)/20+" grid=1 interpolation=Bilinear slice");
 	}
 	
 	//Calculate Difference and Crop outside
@@ -133,6 +137,7 @@ for(imageIndex = 1; imageIndex < inImageList.length; imageIndex ++){
 	
 	//Plot the Error and get Minimum y
 	run("Plot Z-axis Profile");
+	saveAs("Tiff", floPlot+imageTitle+"_plot_rotational.tif");
 	rename("plot");
 	Plot.getValues(xPoints,yPoints);
 	yMin = yPoints[0];
@@ -147,9 +152,10 @@ for(imageIndex = 1; imageIndex < inImageList.length; imageIndex ++){
 	selectWindow(imageTitle);
 	for(i=1;i<=depth;i++){
 		setSlice(i);
-		run("Rotate... ", "angle="+(yMinIndex-100)/20+" grid=1 interpolation=Bilinear slice");
+		run("Rotate... ", "angle="+(yMinIndex-200)/20+" grid=1 interpolation=Bilinear slice");
 	}
 	saveAs("Tiff", flo + "step2_aligned_xyz_" + imageTitle);
+	//waitForUser;
 	
 	//Close Party
 	close();
