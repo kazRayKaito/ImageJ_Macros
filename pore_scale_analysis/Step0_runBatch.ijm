@@ -1,19 +1,19 @@
 //---------------Set Variables----------------------
 
 //Macro Start - End
-forceStartMacro = 0;
+forceStartMacro = 2;
 forceEndMacro = 2;
 
 //Ask before each step
-askBeforeEachStep = true;
+askBeforeEachStep = false;
 
 //Defining path for Macro and get macro list
 flMacro = "C:/Users/lizij/Documents/imageJ_Macros/ImageJ_Macros/pore_scale_analysis/";
-flMacro = "C:/Users/Kazuk/Documents/2_Projects/VSCode/ImageJ_Macros/pore_scale_analysis/";
+//flMacro = "C:/Users/Kazuk/Documents/2_Projects/VSCode/ImageJ_Macros/pore_scale_analysis/";
 
 //---------------Set Variables----------------------
 
-//Initialize log, macroList and macroStart,End
+//Initialize log, macroList, macroStart and End
 print("\\Clear");
 macroList = getFileList(flMacro);
 startMacroIndex  = 1;
