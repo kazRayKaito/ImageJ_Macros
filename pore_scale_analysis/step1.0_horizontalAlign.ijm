@@ -23,9 +23,11 @@ if(argument!=""){
 //----------CheckFolderStructure make imageJ folder----------------
 folderList = getFileList(fli);
 flo = fli+"/imageJ/step1.0_horizontalAlign/";
+floPlot = fli+"/imageJ/step1.0_horizontalAlign_Plots/";
 
 File.makeDirectory(fli+"/imageJ/");
 File.makeDirectory(flo);
+File.makeDirectory(floPlot);
 
 for(folderIndex = 0; folderIndex< folderList.length; folderIndex++){
 	subFolder = folderList[folderIndex].substring(0, folderList[folderIndex].length - 1);
@@ -53,11 +55,6 @@ for(folderIndex = 0; folderIndex< folderList.length; folderIndex++){
 	setOption("BlackBackground", true);
 	run("Convert to Mask", "method=Otsu background=Dark black");
 	
-	//Remove Disconnected Particles
-	run("Keep Largest Region");
-	close(binaryTitle);
-	rename(binaryTitle);
-	
 	//Get Translation infomation
 	print("Obtaining BestFit circle for layers ["+startCutoff+"~"+depth-endCutoff+"]...");
 	xList = newArray(depth-startCutoff-endCutoff);
@@ -65,7 +62,8 @@ for(folderIndex = 0; folderIndex< folderList.length; folderIndex++){
 	zList = newArray(depth-startCutoff-endCutoff);
 	rList = newArray(depth-startCutoff-endCutoff);
 	
-	for(z=startCutoff;z<depth-endCutoff;z++){ 
+	for(z=startCutoff;z<depth-endCutoff;z++)
+	{ 
 		setSlice(z);
 		
 		//--------General Flow is following--------
@@ -208,12 +206,69 @@ for(folderIndex = 0; folderIndex< folderList.length; folderIndex++){
 	//Get best fit center translation for x and y
 	xTarget = targetWidthHeight/2;
 	yTarget = targetWidthHeight/2;
-	Fit.doFit("Straight Line",zList,xList);
+	Fit.doFit("Straight Line", zList, xList);
 	Fit.plot();
+	saveAs("Tiff", floPlot+subFolder+"_plot_zx 1.tif");
 	xStart = Fit.p(0);
 	xSlope = Fit.p(1);
-	Fit.doFit("Straight Line",zList,yList);
-	//Fit.plot();
+	Fit.doFit("Straight Line", zList, yList);
+	Fit.plot();
+	saveAs("Tiff", floPlot+subFolder+"_plot_zy 1.tif");
+	
+	yStart = Fit.p(0);
+	ySlope = Fit.p(1);
+	
+	//Determine indexs to remove by raidus
+	numOfIndex = zList.length;
+	numOfIndexToDelete = floor(numOfIndex * 0.10);
+	listOfIndexsToDelete = newArray(numOfIndexToDelete);
+	for(indexOfList = 0; indexOfList < numOfIndexToDelete; indexOfList++){
+		champRadius = -1;
+		champIndex = -1;
+		for(rListIndex = 0; rListIndex < rList.length; rListIndex++){
+			if(rList[rListIndex] > champRadius){
+				champRadius = rList[rListIndex];
+				champIndex = rListIndex;
+			}
+		}
+		listOfIndexsToDelete[indexOfList] = champIndex;
+		rList[champIndex] = 0;
+	}
+	
+	//Remove Indexes
+	xListTrue = newArray(depth-startCutoff-endCutoff-numOfIndexToDelete);
+	yListTrue = newArray(depth-startCutoff-endCutoff-numOfIndexToDelete);
+	zListTrue = newArray(depth-startCutoff-endCutoff-numOfIndexToDelete);
+	
+	foundCount = 0;
+	for(index = 0; index < zList.length; index++){
+		theIndexIsNotOnList = 1;
+		for(indexOfListOfIndexToDelete = 0; indexOfListOfIndexToDelete < numOfIndexToDelete; indexOfListOfIndexToDelete++){
+			if(listOfIndexsToDelete[indexOfListOfIndexToDelete] == index){
+				theIndexIsNotOnList = 0;
+				foundCount = foundCount + 1;
+				break;
+			}
+		}
+		if(theIndexIsNotOnList){
+			xListTrue[index - foundCount] = xList[index];
+			yListTrue[index - foundCount] = yList[index];
+			zListTrue[index - foundCount] = zList[index];
+		}
+	}
+	
+	
+	//Get best fit center translation for x and y
+	xTarget = targetWidthHeight/2;
+	yTarget = targetWidthHeight/2;
+	Fit.doFit("Straight Line", zListTrue, xListTrue);
+	Fit.plot();
+	saveAs("Tiff", floPlot+subFolder+"_plot_zx 2.tif");
+	xStart = Fit.p(0);
+	xSlope = Fit.p(1);
+	Fit.doFit("Straight Line", zListTrue, yListTrue);
+	Fit.plot();
+	saveAs("Tiff", floPlot+subFolder+"_plot_zy 2.tif");
 	yStart = Fit.p(0);
 	ySlope = Fit.p(1);
 	
@@ -272,5 +327,8 @@ for(folderIndex = 0; folderIndex< folderList.length; folderIndex++){
 	close("TransCropped");
 	close("" + binaryTitle);
 	close(subFolder+".tif");
-	close("y = a+bx");
+	close();
+	close();
+	close();
+	close();
 }
