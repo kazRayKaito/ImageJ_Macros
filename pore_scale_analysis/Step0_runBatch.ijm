@@ -2,7 +2,7 @@
 
 //Macro Start - End
 forceStartMacro = 2;
-forceEndMacro = 2;
+forceEndMacro = 3;
 
 //Ask before each step
 askBeforeEachStep = false;

@@ -26,7 +26,7 @@ File.makeDirectory(floPlot);
 
 //------------Open initial------------
 open(fli + inImageList[0]);
-saveAs("Tiff", flo + "step2_aligned_xyz_" + getTitle());
+saveAs("Tiff", flo + getTitle());
 rename("initial");
 
 //------------Get Parameters------------
@@ -154,7 +154,7 @@ for(imageIndex = 1; imageIndex < inImageList.length; imageIndex ++){
 		setSlice(i);
 		run("Rotate... ", "angle="+(yMinIndex-200)/20+" grid=1 interpolation=Bilinear slice");
 	}
-	saveAs("Tiff", flo + "step2_aligned_xyz_" + imageTitle);
+	saveAs("Tiff", flo + imageTitle);
 	//waitForUser;
 	
 	//Close Party

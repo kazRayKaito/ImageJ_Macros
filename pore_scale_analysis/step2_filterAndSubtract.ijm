@@ -1,7 +1,7 @@
 //---------------Set Variables----------------------
 
-cropWindow = newArray(296, 296, 400, 400);//[x, y, width, height]
-gb_radius = 2.0;
+gb_radius = 0.0;
+initialImageName = "0_brine";
 
 
 //---------------Set Variables----------------------
@@ -25,13 +25,12 @@ inImageList = getFileList(fli);
 File.makeDirectory(flo);
 
 //------------Open initial and apply filter
-open(fli + "initial.tif");
+open(fli + initialImageName + ".tif");
 run("Gaussian Blur 3D...", "x="+gb_radius+" y="+gb_radius+" z="+gb_radius+"");
-rename("initial");
 
 for(inImageIndex = 0; inImageIndex< inImageList.length; inImageIndex++){
 	inImage = inImageList[inImageIndex].substring(0, inImageList[inImageIndex].length-4);
-	if(inImage == "initial"){
+	if(inImage == initialImageName){
 		continue;
 	}
 	print("Processing inImage:"+inImage);
@@ -42,14 +41,14 @@ for(inImageIndex = 0; inImageIndex< inImageList.length; inImageIndex++){
 	run("Gaussian Blur 3D...", "x="+gb_radius+" y="+gb_radius+" z="+gb_radius+"");
 	
 	//Subtract
-	imageCalculator("Subtract create stack", ""+inImage+".tif", "initial");
+	imageCalculator("Subtract create stack", ""+inImage+".tif", initialImageName + ".tif");
 	selectWindow(""+inImage+".tif");
 	close();
 	selectWindow("Result of "+inImage+".tif");
-	rename(""+inImage+"_gb="+gb_radius+".tif");
+	rename(""+inImage+".tif");
 	
-	saveAs("Tiff", flo+inImage+"_gb="+gb_radius+".tif");
+	saveAs("Tiff", flo+inImage+".tif");
 	close();
 }
-selectWindow("initial");
+selectWindow(initialImageName + ".tif");
 close();
