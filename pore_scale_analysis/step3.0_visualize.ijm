@@ -21,9 +21,16 @@ fli = flRaw+"/imageJ/step1.1_VerticalAlign/";
 fliOil = flRaw+"/imageJ/step2_OilPhase/";
 fliWater = flRaw+"/imageJ/step2_WaterPhase/";
 flo = flRaw+"/imageJ/step3.0_Visualize_InvadedPhase/";
+floOil = flRaw+"/imageJ/step3_OilInvasionPhase/";
+floWater = flRaw+"/imageJ/step3_WaterInvasionPhase/";
+
 inImageList = getFileList(fli);
+Array.sort(inImageList);
 
 File.makeDirectory(flo);
+File.makeDirectory(floOil);
+File.makeDirectory(floWater);
+
 
 imageCount = 0;
 
@@ -47,9 +54,12 @@ for(inImageIndex = 0; inImageIndex< inImageList.length; inImageIndex++){
 		
 		//Create mask for invaded regions
 		imageCalculator("Subtract create stack", "new_oil","old_oil");
+		saveAs("Tiff", floOil+inImage+".tif");
 		rename("oil_invaded");
 		run("Divide...", "value=4 stack");
+		
 		imageCalculator("Subtract create stack", "old_oil","new_oil");
+		saveAs("Tiff", floWater+inImage+".tif");
 		rename("water_inaved");
 		run("Divide...", "value=4 stack");
 		

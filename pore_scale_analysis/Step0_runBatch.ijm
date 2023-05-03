@@ -1,8 +1,8 @@
 //---------------Set Variables----------------------
 
 //Macro Start - End
-forceStartMacro = 2;
-forceEndMacro = 3;
+forceStartMacro = 4;
+forceEndMacro = 5;
 
 //Ask before each step
 askBeforeEachStep = false;
