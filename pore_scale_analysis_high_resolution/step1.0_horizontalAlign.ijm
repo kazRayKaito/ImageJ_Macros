@@ -1,11 +1,14 @@
 //---------------Set Variables----------------------
 
 //ImageSettings
-targetWidthHeight = 720;
+targetWidthHeight = 2150;
 
 //Scan Settings
-startCutoff = 150;
-endCutoff = 250;
+startCutoff = 0;//0〜
+endCutoff = 0;//0〜
+
+//For Debugging
+checkProgress = false;//true:stop and check, false:auto
 
 //---------------Set Variables----------------------
 
@@ -30,30 +33,33 @@ File.makeDirectory(flo);
 File.makeDirectory(floPlot);
 
 for(folderIndex = 0; folderIndex< folderList.length; folderIndex++){
+	
+	//Process each folder except "imageJ" folder
 	subFolder = folderList[folderIndex].substring(0, folderList[folderIndex].length - 1);
+	subFolderPath = fli + "/" + subFolder + "/XY/";
 	
 	if(subFolder == "imageJ"){
+		print("Skipping 'imageJ' folder....");
 		continue;
+	}else{
+		print("Processing subfolder:"+subFolder);
 	}
 	
-	print("Processing subfolder:"+subFolder);
+	imageList = getFileList(subFolderPath);
 	
-	//Open image file
-	run("Image Sequence...", "dir="+fli+"/"+subFolder+"/XY/ sort");
-	rename(""+subFolder);
-	
-	title = getTitle;
+	//Get title, width height depth
+	open(subFolderPath + imageList[0]);	
+	title = subFolder;
 	width = getWidth;
 	height = getHeight;
-	depth = nSlices;
-	
-	//Duplicate and Binarize
-	print("Duplicating and Binarizing imageStack using Otsu's method...");
-	binaryTitle = "OtsuBinaryTemp";
-	run("Duplicate...", "title="+binaryTitle+" duplicate");
-	setAutoThreshold("Otsu dark stack");
-	setOption("BlackBackground", true);
-	run("Convert to Mask", "method=Otsu background=Dark black");
+	depth = lengthOf(imageList);
+	close();
+		
+	//print("ImageTitle:" + title);
+	//print("ImageXleng:" + height);
+	//print("ImageYleng:" + width);
+	//print("ImageCount:" + depth);
+		
 	
 	//Get Translation infomation
 	print("Obtaining BestFit circle for layers ["+startCutoff+"~"+depth-endCutoff+"]...");
@@ -64,17 +70,24 @@ for(folderIndex = 0; folderIndex< folderList.length; folderIndex++){
 	
 	for(z=startCutoff;z<depth-endCutoff;z++)
 	{ 
-		setSlice(z);
+		open(subFolderPath + imageList[z]);
+		
+		//Duplicate and Binarize
+		print("Duplicating and Binarizing using Otsu's method...");
+		rename("OtsuBinaryTemp");
+		setAutoThreshold("Otsu dark");
+		setOption("BlackBackground", true);
+		run("Convert to Mask", "method=Otsu background=Dark black");
+		run("Despeckle");
 		
 		//--------General Flow is following--------
 		//    1. Close circule until it hits white
 		//    2. Shift until circle wont hit white
 		//    3. Reduce precision
-		checkProgress = false;
 		
 		//Initialzie values
-		x = floor(getWidth/2);
-		y = floor(getHeight/2);
+		x = floor(width/2);
+		y = floor(height/2);
 		radius = minOf(x,y)-2;
 	
 		//Parameters for "Closing" and "Shifting"
@@ -102,7 +115,7 @@ for(folderIndex = 0; folderIndex< folderList.length; folderIndex++){
 				yTemp = floor(radius*sin(angleArray[i])+y);
 	
 				//Check "Black Width" status
-				if(getValue(xTemp,yTemp)==0){
+				if(getValue(xTemp,yTemp)!=255){
 					if(nowBlack){
 						//Black Continueing
 						currentBlackWidth++;
@@ -137,7 +150,7 @@ for(folderIndex = 0; folderIndex< folderList.length; folderIndex++){
 				justTriedShift = false;
 				radius -= precision;
 				if(checkProgress){
-					waitForUser("Close: r="+radius);
+					waitForUser("Closing: r="+radius);
 					makeOval(x-radius,y-radius,radius*2,radius*2);
 				}
 				continue;
@@ -147,13 +160,13 @@ for(folderIndex = 0; folderIndex< folderList.length; folderIndex++){
 				//Restore Saved Settings
 				x = xSave;
 				y = ySave;
-				radius = radiusSave+precision*0.1;
+				radius = radiusSave+precision*0.0;
 				
 				//Increase Precision
-				precision /= 2;
+				precision *= 0.5;
 				justTriedShift = false;
 				if(checkProgress){
-					waitForUser("Open: r="+radius);
+					waitForUser("Opening: r="+radius);
 					makeOval(x-radius,y-radius,radius*2,radius*2);
 				}
 				continue;
@@ -189,7 +202,7 @@ for(folderIndex = 0; folderIndex< folderList.length; folderIndex++){
 	
 			//Check Progress
 			if(checkProgress){
-				waitForUser("Shift: r="+radius);
+				waitForUser("Shifting: r="+radius);
 				makeOval(x-radius,y-radius,radius*2,radius*2);
 			}
 		}
@@ -198,9 +211,12 @@ for(folderIndex = 0; folderIndex< folderList.length; folderIndex++){
 		yList[z-startCutoff] = y;
 		zList[z-startCutoff] = z;
 		rList[z-startCutoff] = radius;
+		print("r: " + radius);
 		//setResult("x",z-startCutoff,x);
 		//setResult("y",z-startCutoff,y);
 		//setResult("radius",z-startCutoff,radius);
+		
+		close();
 	}
 	
 	//Get best fit center translation for x and y
@@ -220,7 +236,7 @@ for(folderIndex = 0; folderIndex< folderList.length; folderIndex++){
 	
 	//Determine indexs to remove by raidus
 	numOfIndex = zList.length;
-	numOfIndexToDelete = floor(numOfIndex * 0.10);
+	numOfIndexToDelete = floor(numOfIndex * 0.50);
 	listOfIndexsToDelete = newArray(numOfIndexToDelete);
 	for(indexOfList = 0; indexOfList < numOfIndexToDelete; indexOfList++){
 		champRadius = -1;
