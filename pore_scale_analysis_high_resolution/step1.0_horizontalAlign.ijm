@@ -4,8 +4,8 @@
 targetWidthHeight = 2150;
 
 //Scan Settings
-startCutoff = 0;//0〜
-endCutoff = 0;//0〜
+startCutoff = 150;//0〜
+endCutoff = 150;//0〜
 
 //For Debugging
 checkProgress = false;//true:stop and check, false:auto
@@ -19,7 +19,7 @@ if(argument!=""){
 	print("Argument Dir:"+fli);
 }else{
 	print("\\Clear");
-	fli = getDirectory("Choose a Directory for a folder which contains folder [initial, 0, 1,2,...]");
+	fli = getDirectory("Choose a folder which contains [0_brine, 1_xxxx, 2_xxxx]");
 	print("Selected Dir:"+fli);
 }
 
@@ -45,7 +45,14 @@ for(folderIndex = 0; folderIndex< folderList.length; folderIndex++){
 		print("Processing subfolder:"+subFolder);
 	}
 	
-	imageList = getFileList(subFolderPath);
+	//Check files in subfolder and remove if its not tif file
+	imageListTemp = getFileList(subFolderPath);
+	imageList = newArray(0);
+	for(i = 0; i < lengthOf(imageListTemp); i++){
+		if(endsWith(imageListTemp[i], "tif")){
+			imageList = Array.concat(imageList,imageListTemp[i]);
+		}
+	}
 	
 	//Get title, width height depth
 	open(subFolderPath + imageList[0]);	

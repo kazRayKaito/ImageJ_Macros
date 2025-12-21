@@ -5,7 +5,7 @@ if(argument!=""){
 	print("Argument Dir:"+flRaw);
 }else{
 	print("\\Clear");
-	flRaw = getDirectory("Choose a Directory for a folder which contains folder [initial, 0, 1,2,...]");
+	flRaw = getDirectory("Choose a Directory for a folder which contains [imageJ] Folder");
 	print("Selected Dir:"+flRaw);
 }
 

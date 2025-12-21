@@ -11,7 +11,7 @@ if(argument!=""){
 	print("Argument Dir:"+flRaw);
 }else{
 	print("\\Clear");
-	flRaw = getDirectory("Choose a Directory for a folder which contains folder [initial, 0, 1,2,...]");
+	flRaw = getDirectory("Choose a folder which contains [0_brine, 1_xxxx, 2_xxxx]");
 	print("Selected Dir:"+flRaw);
 }
 
