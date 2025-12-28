@@ -12,12 +12,12 @@ endMacroIndex = 2;
 //   Step5:visualizeEachPhase
 
 //Defining path for Macro and get macro list
-flMacro = "/Users/kazukikaito/Workspace/github/ImageJ_Macros/pore_scale_analysis_high_resolution_v2/";
+flMacro = "C:/Users/kazuk/Documents/GitHub/ImageJ_Macros/pore_scale_analysis_high_resolution_v2/";
 
 //If "", then ask for folder, if not, the path will be used
-overWrittenFlRaw = ""
-overWrittenFlRaw = "/Volumes/raySSD2T/Data/Lily\'sResearch/LowRes_test/";
-overWrittenFlRaw = "/Volumes/raySSD2T/Data/Lily\'sResearch/nw_raw_Original/";
+//overWrittenFlRaw = ""
+//overWrittenFlRaw = "/Volumes/raySSD2T/Data/Lily\'sResearch/LowRes_test/";
+overWrittenFlRaw = "B:/ForLily/2025-12-27_LilysSSD/nw_raw_only3/";
 
 //---------------Set Variables----------------------
 

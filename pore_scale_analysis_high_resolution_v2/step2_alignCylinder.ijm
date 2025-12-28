@@ -3,11 +3,11 @@
 maxPixel = 50000000;
 maxPixel = 500000000;
 
-doStep10 = false;//shift XY, crop, Stack and Segment
-doStep11 = false;//reStack, transform and segment
-doStep12 = false;//find vertical offset
+doStep10 = true;//shift XY, crop, Stack and Segment
+doStep11 = true;//reStack, transform and segment
+doStep12 = true;//find vertical offset
 doStep13 = true;//reStack, transform, vertically align and segment
-doStep14 = true//find rough rotational offset
+doStep14 = true;//find rough rotational offset
 doStep15 = true;//find procise rotational offset
 doStep16 = true;//reStack, vertically align and save
 
@@ -242,13 +242,19 @@ for(summaryIndex = 1; summaryIndex < summaries.length; summaryIndex++){
 			open(floSlicePath + "0_brine.tiff");
 			rename("0_brine");
 			imageCalculator("Difference", imageTitle,"0_brine");
+			close("0_brine");
+			
+			//CropImage
+			selectWindow(imageTitle);
 			makeRectangle(floor(slideDepth + imageDepth * 0.1), 0, floor(imageDepth*0.8 - slideDepth * 2), slideDepth*2);
 			run("Crop");
-			tempTitle2 = getTitle();
 			
 			//Reslice to aquire Z-axis Profile
+			selectWindow(imageTitle);
+			rename("tempTitle");
 			run("Reslice [/]...", "output=1.000 start=Top avoid");
-			tempTitle = getTitle();
+			rename(imageTitle);
+			close("tempTitle");
 			run("Plot Z-axis Profile");
 			
 			//Get values from plot and get min Y value and index
@@ -265,19 +271,17 @@ for(summaryIndex = 1; summaryIndex < summaries.length; summaryIndex++){
 			//Save plot and close windows
 			saveAs("Tiff", floPlotPath + "plot_"+imageTitle+".tiff");
 			rename("plot");
-			close(tempTitle);
-			close(tempTitle2);
 			close("plot");
 			
 			//Save result
 			run("Clear Results");
 			setResult("verticalOffset",0,yMinIndex - slideDepth);
 			saveAs("Results", floSummaryPath+imageTitle+".csv");
-			close();
+			
 		}
-		//close 0_brine
-		close("0_brine");
+		close(imageTitle);
 	}
+	
 	
 	if(doStep13){
 		print("[" + si + "/" + sl + "]-"+ subFolder + " Step13");
@@ -405,6 +409,7 @@ for(summaryIndex = 1; summaryIndex < summaries.length; summaryIndex++){
 			open(floSlicePath + "0_brine.tiff");
 			rename("0_brine");
 			imageCalculator("Difference stack", subFolder,"0_brine");
+			selectWindow(subFolder);
 			run("Plot Z-axis Profile");
 			
 			//Get values from plot and get min Y value and index
@@ -510,6 +515,7 @@ for(summaryIndex = 1; summaryIndex < summaries.length; summaryIndex++){
 			open(floSlicePath + "0_brine.tiff");
 			rename("0_brine");
 			imageCalculator("Difference stack", subFolder,"0_brine");
+			selectWindow(subFolder);
 			run("Plot Z-axis Profile");
 			
 			//Get values from plot and get min Y value and index
