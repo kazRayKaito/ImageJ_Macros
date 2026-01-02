@@ -1,8 +1,8 @@
 //---------------Set Variables----------------------
 
 //Macro start-end [ 1 ~ 5 ]
-startMacroIndex = 2;
-endMacroIndex = 2;
+startMacroIndex = 3;
+endMacroIndex = 3;
 
 //Macro List
 //   Step1:getStackInfo
@@ -12,12 +12,14 @@ endMacroIndex = 2;
 //   Step5:visualizeEachPhase
 
 //Defining path for Macro and get macro list
-flMacro = "C:/Users/kazuk/Documents/GitHub/ImageJ_Macros/pore_scale_analysis_high_resolution_v2/";
+flMacro = "C:/Users/kazuk/Documents/GitHub/ImageJ_Macros/pore_scale_analysis_high_resolution_v2/";
 
 //If "", then ask for folder, if not, the path will be used
 //overWrittenFlRaw = ""
 //overWrittenFlRaw = "/Volumes/raySSD2T/Data/Lily\'sResearch/LowRes_test/";
-overWrittenFlRaw = "B:/ForLily/2025-12-27_LilysSSD/nw_raw_only3/";
+//overWrittenFlRaw = "B:/ForLily/2025-12-27_LilysSSD/nw_raw_only3/";
+overWrittenFlRaw = "E:/LilysSSD/nw_raw/";
+
 
 //---------------Set Variables----------------------
 

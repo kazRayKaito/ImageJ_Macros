@@ -3,13 +3,13 @@
 maxPixel = 50000000;
 maxPixel = 500000000;
 
-doStep10 = true;//shift XY, crop, Stack and Segment
-doStep11 = true;//reStack, transform and segment
-doStep12 = true;//find vertical offset
-doStep13 = true;//reStack, transform, vertically align and segment
-doStep14 = true;//find rough rotational offset
-doStep15 = true;//find procise rotational offset
-doStep16 = true;//reStack, vertically align and save
+doStep10 = 0;//shift XY, crop, Stack and Segment
+doStep11 = 0;//reStack, transform and segment
+doStep12 = 0;//find vertical offset
+doStep13 = 0;//reStack, transform, vertically align and segment
+doStep14 = 0;//find rough rotational offset
+doStep15 = 0;//find procise rotational offset
+doStep16 = 1;//reStack, vertically align and save
 
 //----------For batch, get rootFoler----------------
 argument = getArgument();
@@ -573,6 +573,8 @@ for(summaryIndex = 1; summaryIndex < summaries.length; summaryIndex++){
 			File.openSequence(fliStackedSubFolderPath);
 			run("Reslice [/]...", "output=1.000 start=Top avoid");
 			run("Rotate... ", "angle="+offsetValue+" grid=1 interpolation=Bilinear stack");
+			run("Flip Vertically", "stack");
+			run("Rotate 90 Degrees Left");
 			saveAs("Tiff", floSubFolderPath + stackCoord+".tiff");
 			close();
 			close();
